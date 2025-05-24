@@ -6,6 +6,9 @@ SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
 
+RUN echo "Acquire::http { Proxy \"${APT_CACHER_NG}\"; }" | tee /etc/apt/apt.conf.d/proxy
+RUN cat /etc/apt/sources.list
+
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -55,10 +58,11 @@ RUN npm install -g rtlcss
 
 # Install Odoo
 ENV ODOO_VERSION 15.0
-ARG ODOO_RELEASE=20240924
-ARG ODOO_SHA=aff60a8a895d6b5f3cca83ac3832eccf3e40d820
-RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
+ARG OTBM_PKG_VERSION=v0.0.0
+ARG OTBM_RELEASE=0+otbm.0-0_all
+ARG ODOO_SHA=f9c82a2494509a75287672ba729fd26f958b557509d6e9769dace2e081320824
+RUN curl -o odoo.deb -sSL https://gitea.otbm.xyz/otb/odoo/releases/download/${OTBM_PKG_VERSION}/odoo_${ODOO_VERSION}.${OTBM_RELEASE}.deb \
+    && echo "${ODOO_SHA} odoo.deb" | sha256sum -c - \
     && apt-get update \
     && apt-get -y install --no-install-recommends ./odoo.deb \
     && rm -rf /var/lib/apt/lists/* odoo.deb
