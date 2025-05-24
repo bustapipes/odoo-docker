@@ -6,6 +6,9 @@ SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
 
+ENV APT_CACHER_NG
+RUN echo 'Acquire::http { Proxy "${APT_CACHER_NG}"; }' | tee /etc/apt/apt.conf.d/proxy
+
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
