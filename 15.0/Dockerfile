@@ -8,6 +8,7 @@ ENV LANG C.UTF-8
 
 ENV APT_CACHER_NG
 RUN echo 'Acquire::http { Proxy "${APT_CACHER_NG}"; }' | tee /etc/apt/apt.conf.d/proxy
+RUN nl /etc/apt/sources.list.d/*
 
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN apt-get update && \
