@@ -47,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            APT_CACHER_NG=vars.APT_CACHER_NG
+            APT_CACHER_NG=${{ vars.APT_CACHER_NG }}
           context: "{{defaultContext}}:15.0" # context:path
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
