@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature-*
+      - 15-*
       - otbm
 
 env:
@@ -45,6 +46,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          build-args: |
+            APT_CACHER_NG=vars.APT_CACHER_NG
           context: "{{defaultContext}}:15.0" # context:path
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}

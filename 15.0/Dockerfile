@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
 
+ARG APT_CACHER_NG=
 RUN echo "Acquire::http { Proxy \"${APT_CACHER_NG}\"; }" | tee /etc/apt/apt.conf.d/proxy
 RUN cat /etc/apt/sources.list
 
