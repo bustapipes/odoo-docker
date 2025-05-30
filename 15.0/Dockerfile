@@ -4,7 +4,7 @@ MAINTAINER Odoo S.A. <info@odoo.com>
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
 # Generate locale C.UTF-8 for postgres and general locale data
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ARG APT_CACHER_NG=
 RUN echo "Acquire::http { Proxy \"${APT_CACHER_NG}\"; }" | tee /etc/apt/apt.conf.d/proxy
@@ -58,15 +58,18 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
 RUN npm install -g rtlcss
 
 # Install Odoo
-ENV ODOO_VERSION 15.0
+ENV ODOO_VERSION=15.0
 ARG OTBM_PKG_VERSION=v0.0.2
 ARG OTBM_RELEASE=0+otbm.0-0_all
-ARG ODOO_SHA=f1aa0dca4d4b7fb0eed6ef7fefeaec7b93fc107e070c2f7b34d31592cbc1f5d5
 RUN curl -o odoo.deb -sSL https://gitea.otbm.xyz/otb/odoo/releases/download/${OTBM_PKG_VERSION}/odoo_${ODOO_VERSION}.${OTBM_RELEASE}.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha256sum -c - \
+    && curl -sSL https://gitea.otbm.xyz/otb/odoo/releases/download/${OTBM_PKG_VERSION}/odoo.sha256 | awk '{print $1,"odoo.deb"}' | sha256sum -c - \
     && apt-get update \
     && apt-get -y install --no-install-recommends ./odoo.deb \
     && rm -rf /var/lib/apt/lists/* odoo.deb
+
+COPY ./requirement-otb.txt /
+RUN pip install --requirement /requirement-otb.txt \
+    && rm -f /requirements-otb.txt
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
@@ -82,7 +85,7 @@ VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 EXPOSE 8069 8071 8072
 
 # Set the default config file
-ENV ODOO_RC /etc/odoo/odoo.conf
+ENV ODOO_RC=/etc/odoo/odoo.conf
 
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
